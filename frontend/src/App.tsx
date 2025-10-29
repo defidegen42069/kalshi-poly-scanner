@@ -11,11 +11,11 @@ function App() {
     // Check backend connection
     const checkBackend = async () => {
       try {
-        // Try to connect to backend directly
-        await axios.get('http://localhost:8000/health', { timeout: 5000 })
+        // Try to connect to backend using relative path
+        await axios.get('/health', { timeout: 5000 })
         setIsLoading(false)
       } catch (err) {
-        setError('Failed to connect to backend. Make sure the backend server is running on port 8000.')
+        setError('Failed to connect to backend. Please try refreshing the page.')
         setIsLoading(false)
       }
     }
