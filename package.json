@@ -1,0 +1,27 @@
+{
+  "name": "kalshi-poly-scanner",
+  "version": "1.0.0",
+  "description": "Arbitrage scanner for Kalshi and Polymarket",
+  "main": "backend-js/index.js",
+  "scripts": {
+    "dev:backend": "nodemon backend-js/index.js",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "cd frontend && npm install && npm run build",
+    "postbuild": "echo 'Frontend built successfully'",
+    "start": "npm run build && node backend-js/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.1"
+  }
+}
