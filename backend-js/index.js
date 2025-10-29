@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 const axios = require('axios');
 
@@ -28,7 +29,7 @@ const mockPolymarketMarkets = [
   { market_id: 'p4', title: 'Will Apple stock rise 10%', category: 'stocks', last_price: 0.59, volume_24h: 140000, status: 'active' },
 ];
 
-// Kalshi API - Using public endpoint (no auth required for reading)
+// Fetch Kalshi markets
 async function getKalshiMarkets() {
   if (!USE_REAL_API) {
     return mockKalshiMarkets;
@@ -62,7 +63,7 @@ async function getKalshiMarkets() {
   }
 }
 
-// Polymarket API - Using GAMMA API (data endpoint, no auth required)
+// Fetch Polymarket markets
 async function getPolymarketMarkets() {
   if (!USE_REAL_API) {
     return mockPolymarketMarkets;
@@ -71,7 +72,6 @@ async function getPolymarketMarkets() {
   try {
     console.log('Fetching Polymarket markets...');
 
-    // Try GAMMA API first (recommended for reading)
     try {
       const response = await axios.get('https://gamma-api.polymarket.com/markets', {
         params: {
@@ -99,7 +99,6 @@ async function getPolymarketMarkets() {
     } catch (gammaError) {
       console.log('GAMMA API failed, trying CLOB API...');
 
-      // Fallback to CLOB API
       const response = await axios.get('https://clob.polymarket.com/markets', {
         timeout: 15000,
         headers: {
@@ -133,7 +132,6 @@ function findArbitrageOpportunities(kalshiMarkets, polymarketMarkets) {
       const kalshiTitle = (kalshi.title || '').toLowerCase().trim();
       const polyTitle = (poly.title || '').toLowerCase().trim();
 
-      // Smart matching: exact match or similar keywords
       const isSameMarket = kalshiTitle === polyTitle ||
                           (kalshiTitle.length > 10 &&
                            polyTitle.includes(kalshiTitle.substring(0, 15)));
@@ -146,7 +144,7 @@ function findArbitrageOpportunities(kalshiMarkets, polymarketMarkets) {
           const spread = Math.abs(kalshiPrice - polyPrice);
           const spreadPercent = (spread / Math.max(kalshiPrice, polyPrice)) * 100;
 
-          if (spreadPercent > 0.5) { // Show spreads > 0.5%
+          if (spreadPercent > 0.5) {
             opportunities.push({
               category: kalshi.category || 'unknown',
               title: kalshi.title || poly.title,
@@ -215,6 +213,18 @@ app.get('/api/comparison', async (req, res) => {
     console.error('Error comparing markets:', error);
     res.status(500).json({ error: 'Failed to compare markets' });
   }
+});
+
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// Fallback to index.html for SPA routing
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
 app.listen(PORT, () => {
