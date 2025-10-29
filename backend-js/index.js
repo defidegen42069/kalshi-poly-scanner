@@ -230,3 +230,4 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
   console.log('✓ Backend ready on http://localhost:' + PORT);
 });
+// Force rebuild - Wed, Oct 29, 2025  4:41:12 AM
